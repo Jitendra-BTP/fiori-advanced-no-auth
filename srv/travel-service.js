@@ -141,8 +141,18 @@ init() {
     req.data.Progress = score
   })
 
-  this.on ('acceptTravel', req => UPDATE (req.subject) .with ({TravelStatus_code:'A'}))
-  this.on ('rejectTravel', req => UPDATE (req.subject) .with ({TravelStatus_code:'X'}))
+  this.on ('acceptTravel', async req => { 
+    await UPDATE (req.subject) .with ({TravelStatus_code:'A'})
+    return this._update_progress(req.subject, 100)
+  })
+  this.on ('rejectTravel', async req => {
+    await UPDATE (req.subject) .with ({TravelStatus_code:'X'})
+    return this._update_progress(req.subject, 0)
+  })
+
+  this._update_progress = async function (travel, progress){
+    return await UPDATE (travel) . with({Progress : progress})
+  }
 
   this.on ('deductDiscount', async req => {
     let discount = req.data.percent / 100
